@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMovies } from "../hooks/useMovies";
 import { Heart, Star } from "lucide-react";
+import { motion as Motion } from "framer-motion";
 
 const PLACEHOLDER = "https://placehold.co/300x445?text=No+Poster";
 
@@ -18,10 +19,28 @@ export default function MovieCard({ movie }) {
     if (saved) setRating(Number(saved));
   }, [movie.id]);
 
-  // Save rating persistently
+  // Sync rating across tabs
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === `movie_rating_${movie.id}`) {
+        const saved = localStorage.getItem(`movie_rating_${movie.id}`);
+        setRating(saved ? Number(saved) : 0);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [movie.id]);
+
   const handleRating = (value) => {
     setRating(value);
     localStorage.setItem(`movie_rating_${movie.id}`, value);
+  };
+
+  const resetRating = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setRating(0);
+    localStorage.removeItem(`movie_rating_${movie.id}`);
   };
 
   const handleFavoriteClick = (e) => {
@@ -31,8 +50,13 @@ export default function MovieCard({ movie }) {
   };
 
   return (
-    <div className="bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition">
-      <Link to={`/movie/${movie.id}`}>
+    <Motion.div
+      initial={{ opacity: 0, y: 25 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition"
+    >
+      <Link to={`/movie/${movie.id}`} aria-label={`View details for ${movie.title}`}>
         <img
           src={
             movie.poster_path
@@ -40,7 +64,7 @@ export default function MovieCard({ movie }) {
               : PLACEHOLDER
           }
           alt={movie.title}
-          className="w-full h-[350px] object-cover"
+          className="w-full h-[350px] object-cover transform hover:scale-105 transition duration-300"
         />
       </Link>
 
@@ -52,7 +76,8 @@ export default function MovieCard({ movie }) {
           </h3>
           <button
             onClick={handleFavoriteClick}
-            className={`transition ${
+            aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
+            className={`transition transform hover:scale-110 ${
               favorite ? "text-red-500" : "text-gray-400 hover:text-red-400"
             }`}
             title={favorite ? "Remove from favorites" : "Add to favorites"}
@@ -61,7 +86,13 @@ export default function MovieCard({ movie }) {
           </button>
         </div>
 
-        {/* ⭐ IMDb-style 1–10 Rating System */}
+        {/* Movie Metadata */}
+        <p className="text-gray-400 text-xs">
+          {movie.release_date ? movie.release_date.slice(0, 4) : "N/A"} • ⭐{" "}
+          {movie.vote_average?.toFixed(1) || "N/A"}
+        </p>
+
+        {/* ⭐ Rating System */}
         <div className="flex gap-1 mt-1">
           {[...Array(10)].map((_, i) => {
             const value = i + 1;
@@ -69,10 +100,10 @@ export default function MovieCard({ movie }) {
               <Star
                 key={value}
                 size={16}
-                className={`cursor-pointer transition ${
+                className={`cursor-pointer transition-colors duration-200 ${
                   (hover || rating) >= value
                     ? "text-yellow-400"
-                    : "text-gray-500"
+                    : "text-gray-600"
                 }`}
                 onClick={(e) => {
                   e.preventDefault();
@@ -87,13 +118,21 @@ export default function MovieCard({ movie }) {
           })}
         </div>
 
-        {/* Show numeric rating below */}
+        {/* Rated Badge + Reset */}
         {rating > 0 && (
-          <p className="text-xs text-gray-400 mt-1">
-            You rated this movie <span className="text-gray-200 font-semibold">{rating}/10</span>
-          </p>
+          <div className="flex items-center justify-between mt-1">
+            <span className="text-xs bg-yellow-500 text-black px-2 py-0.5 rounded-md">
+              Rated {rating}/10
+            </span>
+            <button
+              onClick={resetRating}
+              className="text-xs text-gray-400 hover:text-red-400 transition"
+            >
+              Reset
+            </button>
+          </div>
         )}
       </div>
-    </div>
+    </Motion.div>
   );
 }
