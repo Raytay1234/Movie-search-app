@@ -12,7 +12,7 @@ export default function Favorites() {
       </h1>
 
       {favorites.length === 0 ? (
-        <p className="text-gray-400">No favorite movies yet.</p>
+        <p className="text-gray-400 text-center">No favorite movies yet.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
           {favorites.map((movie) => (

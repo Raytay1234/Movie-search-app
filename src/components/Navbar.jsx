@@ -42,25 +42,52 @@ export default function Navbar() {
           <NavLink
             to="/"
             className={({ isActive }) =>
-              `flex items-center gap-1.5 text-sm sm:text-base transition-all duration-200 ${isActive
-                ? "text-indigo-400 font-semibold"
-                : "text-gray-300 hover:text-white"
+              `flex items-center gap-1.5 text-sm sm:text-base transition-all duration-200 ${
+                isActive
+                  ? "text-indigo-400 font-semibold"
+                  : "text-gray-300 hover:text-white"
               }`
             }
           >
-            <Home size={18} /> <span>Home</span>
+            <Home size={18} /> <span>Movies</span>
+          </NavLink>
+
+          <NavLink
+            to="/tv-shows"
+            className={({ isActive }) =>
+              `flex items-center gap-1.5 text-sm sm:text-base transition-all duration-200 ${
+                isActive
+                  ? "text-indigo-400 font-semibold"
+                  : "text-gray-300 hover:text-white"
+              }`
+            }
+          >
+            <Film size={18} /> <span>TV Shows</span>
           </NavLink>
 
           <NavLink
             to="/favorites"
             className={({ isActive }) =>
-              `flex items-center gap-1.5 text-sm sm:text-base transition-all duration-200 ${isActive
-                ? "text-indigo-400 font-semibold"
-                : "text-gray-300 hover:text-white"
+              `flex items-center gap-1.5 text-sm sm:text-base transition-all duration-200 ${
+                isActive
+                  ? "text-indigo-400 font-semibold"
+                  : "text-gray-300 hover:text-white"
               }`
             }
           >
             <Heart size={18} /> <span>Favorites</span>
+          </NavLink>
+          <NavLink
+            to="/watch-later"
+            className={({ isActive }) =>
+              `flex items-center gap-1.5 text-sm sm:text-base transition-all duration-200 ${
+                isActive
+                  ? "text-indigo-400 font-semibold"
+                  : "text-gray-300 hover:text-white"
+              }`
+            }
+          >
+            <Film size={18} /> <span>Watch Later</span>
           </NavLink>
         </div>
 
@@ -90,18 +117,20 @@ export default function Navbar() {
                 to="/"
                 onClick={closeMenu}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 text-gray-300 hover:text-indigo-400 transition-all ${isActive ? "text-indigo-400 font-semibold" : ""
+                  `flex items-center gap-2 text-gray-300 hover:text-indigo-400 transition-all ${
+                    isActive ? "text-indigo-400 font-semibold" : ""
                   }`
                 }
               >
-                <Home size={18} /> <span>Home</span>
+                <Home size={18} /> <span>Movies</span>
               </NavLink>
+
               <NavLink
-                to="/tv"
+                to="/tv-shows"
+                onClick={closeMenu}
                 className={({ isActive }) =>
-                  `flex items-center gap-1.5 text-sm sm:text-base transition-all duration-200 ${isActive
-                    ? "text-indigo-400 font-semibold"
-                    : "text-gray-300 hover:text-white"
+                  `flex items-center gap-2 text-gray-300 hover:text-indigo-400 transition-all ${
+                    isActive ? "text-indigo-400 font-semibold" : ""
                   }`
                 }
               >
@@ -112,7 +141,8 @@ export default function Navbar() {
                 to="/favorites"
                 onClick={closeMenu}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 text-gray-300 hover:text-indigo-400 transition-all ${isActive ? "text-indigo-400 font-semibold" : ""
+                  `flex items-center gap-2 text-gray-300 hover:text-indigo-400 transition-all ${
+                    isActive ? "text-indigo-400 font-semibold" : ""
                   }`
                 }
               >

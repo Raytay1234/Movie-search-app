@@ -12,11 +12,13 @@ export default function TVShows() {
   const [sortType, setSortType] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Fetch genres & trending on mount
   useEffect(() => {
     fetchGenres();
     fetchTrending();
   }, []);
 
+  // ✅ Fetch genres
   const fetchGenres = async () => {
     try {
       const res = await fetch(
@@ -29,6 +31,7 @@ export default function TVShows() {
     }
   };
 
+  // ✅ Fetch trending TV shows
   const fetchTrending = async () => {
     setLoading(true);
     try {
@@ -44,6 +47,7 @@ export default function TVShows() {
     }
   };
 
+  // ✅ Search shows
   const searchShows = useCallback(async (searchTerm) => {
     if (!searchTerm.trim()) return fetchTrending();
 
@@ -63,6 +67,7 @@ export default function TVShows() {
     }
   }, []);
 
+  // ✅ Search delay (debounce)
   useEffect(() => {
     const delay = setTimeout(() => {
       if (query.trim()) searchShows(query);
@@ -71,6 +76,7 @@ export default function TVShows() {
     return () => clearTimeout(delay);
   }, [query, searchShows]);
 
+  // ✅ Filtering + Sorting
   const filteredShows = shows
     .filter((show) =>
       selectedGenre ? show.genre_ids?.includes(Number(selectedGenre)) : true
@@ -87,6 +93,7 @@ export default function TVShows() {
     <div className="max-w-6xl mx-auto p-4 sm:p-6">
       {/* Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        {/* Search Input */}
         <input
           type="text"
           value={query}
@@ -95,6 +102,7 @@ export default function TVShows() {
           className="w-full sm:w-1/3 px-4 py-2 rounded-lg bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
 
+        {/* Genre Filter */}
         <select
           value={selectedGenre}
           onChange={(e) => setSelectedGenre(e.target.value)}
@@ -108,6 +116,7 @@ export default function TVShows() {
           ))}
         </select>
 
+        {/* Sorting */}
         <select
           value={sortType}
           onChange={(e) => setSortType(e.target.value)}
@@ -121,7 +130,7 @@ export default function TVShows() {
         </select>
       </div>
 
-      {/* Grid */}
+      {/* TV Shows Grid */}
       {loading ? (
         <p className="text-gray-400 text-center">Loading...</p>
       ) : filteredShows.length === 0 ? (
@@ -129,7 +138,13 @@ export default function TVShows() {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
           {filteredShows.map((show) => (
-            <MovieCard key={show.id} movie={show} />
+            <MovieCard
+              key={show.id}
+              movie={{
+                ...show,
+                title: show.name, // TMDb uses "name" for TV shows
+              }}
+            />
           ))}
         </div>
       )}
