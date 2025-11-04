@@ -18,9 +18,9 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center from-indigo-600 to-blue-500 bg-linear-to-br">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-700 via-blue-600 to-indigo-500">
+      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
           Welcome Back 👋
         </h2>
 
@@ -44,7 +44,7 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-semibold"
           >
             Login
           </button>
@@ -52,7 +52,7 @@ export default function Login() {
 
         <p className="text-center text-sm text-gray-600 mt-4">
           Don’t have an account?{" "}
-          <Link to="/signup" className="text-indigo-600 hover:underline">
+          <Link to="/signup" className="text-indigo-600 hover:underline font-medium">
             Sign up
           </Link>
         </p>

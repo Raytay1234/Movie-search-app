@@ -7,7 +7,7 @@ export function MovieProvider({ children }) {
   const [favorites, setFavorites] = useState([]);
   const [watchLater, setWatchLater] = useState([]);
 
-  // ✅ Load from localStorage on mount
+  // Load from localStorage
   useEffect(() => {
     const fav = localStorage.getItem("favorites");
     if (fav) setFavorites(JSON.parse(fav));
@@ -16,71 +16,46 @@ export function MovieProvider({ children }) {
     if (watch) setWatchLater(JSON.parse(watch));
   }, []);
 
-  // ✅ Persist favorites
+  // Persist to localStorage
   useEffect(() => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
 
-  // ✅ Persist watch later
   useEffect(() => {
     localStorage.setItem("watchLater", JSON.stringify(watchLater));
   }, [watchLater]);
 
-  // ✅ Add to favorites (prevents duplicates)
+  // --- Helper: Normalize ID ---
+  const getId = (movie) =>
+    movie.id || movie.imdbID || `${movie.media_type}-${movie.title || movie.name}`;
+
+  // --- FAVORITES ---
   const addToFavorites = (movie) =>
     setFavorites((prev) => {
-      if (prev.find((m) => m.id === movie.id || m.imdbID === movie.imdbID)) {
-        return prev;
-      }
-      const updated = [...prev, movie];
-      localStorage.setItem("favorites", JSON.stringify(updated));
-      return updated;
+      const uid = getId(movie);
+      if (prev.some((m) => getId(m) === uid)) return prev;
+      return [...prev, movie];
     });
 
-  // ✅ Remove from favorites — flexible ID match
-  const removeFromFavorites = (identifier) => {
-    const idStr = String(identifier);
-    setFavorites((prev) => {
-      const updated = prev.filter((m) => {
-        const ids = [m.id, m.imdbID, m.imdb_id, m.id_str].filter(Boolean);
-        return !ids.some((cand) => String(cand) === idStr);
-      });
-      localStorage.setItem("favorites", JSON.stringify(updated));
-      return updated;
-    });
-  };
+  const removeFromFavorites = (id) =>
+    setFavorites((prev) => prev.filter((m) => getId(m) !== id && m.id !== id));
 
-  // ✅ Check if favorite
   const isFavorite = (id) =>
-    favorites.some((m) => String(m.id) === String(id) || String(m.imdbID) === String(id));
+    favorites.some((m) => getId(m) === id || m.id === id);
 
-  // ✅ Add to watch later
+  // --- WATCH LATER ---
   const addToWatchLater = (movie) =>
     setWatchLater((prev) => {
-      if (prev.find((m) => m.id === movie.id || m.imdbID === movie.imdbID)) {
-        return prev;
-      }
-      const updated = [...prev, movie];
-      localStorage.setItem("watchLater", JSON.stringify(updated));
-      return updated;
+      const uid = getId(movie);
+      if (prev.some((m) => getId(m) === uid)) return prev;
+      return [...prev, movie];
     });
 
-  // ✅ Remove from watch later — flexible ID match
-  const removeFromWatchLater = (identifier) => {
-    const idStr = String(identifier);
-    setWatchLater((prev) => {
-      const updated = prev.filter((m) => {
-        const ids = [m.id, m.imdbID, m.imdb_id, m.id_str].filter(Boolean);
-        return !ids.some((cand) => String(cand) === idStr);
-      });
-      localStorage.setItem("watchLater", JSON.stringify(updated));
-      return updated;
-    });
-  };
+  const removeFromWatchLater = (id) =>
+    setWatchLater((prev) => prev.filter((m) => getId(m) !== id && m.id !== id));
 
-  // ✅ Check if in watch later
   const isInWatchLater = (id) =>
-    watchLater.some((m) => String(m.id) === String(id) || String(m.imdbID) === String(id));
+    watchLater.some((m) => getId(m) === id || m.id === id);
 
   return (
     <MovieContext.Provider
