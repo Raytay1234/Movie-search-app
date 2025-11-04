@@ -3,9 +3,11 @@ import React from "react";
 import MovieCard from "./MovieCard";
 
 const FavoritesList = ({ movies, removeFromFavorites }) => {
-  if (movies.length === 0) {
+  if (!movies || movies.length === 0) {
     return (
-      <p className="text-gray-400 text-center mt-10">No favorites added yet.</p>
+      <p className="text-gray-400 text-center mt-10">
+        No favorite movies yet.
+      </p>
     );
   }
 
@@ -13,9 +15,9 @@ const FavoritesList = ({ movies, removeFromFavorites }) => {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
       {movies.map((movie) => (
         <MovieCard
-          key={movie.imdbID}
+          key={movie.id}
           movie={movie}
-          onRemove={() => removeFromFavorites(movie.imdbID)}
+          onRemove={() => removeFromFavorites(movie.id)}
         />
       ))}
     </div>

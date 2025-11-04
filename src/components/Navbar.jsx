@@ -1,153 +1,190 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { Heart, Home, Film, Menu, X } from "lucide-react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion as Motion, AnimatePresence } from "framer-motion";
+import { Menu, X, User, LogOut, Settings } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef(null);
-
-  const toggleMenu = () => setIsOpen((prev) => !prev);
-  const closeMenu = () => setIsOpen(false);
-
-  // ✅ Close when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
-    else document.removeEventListener("mousedown", handleClickOutside);
-
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   return (
     <nav className="bg-gray-900/95 backdrop-blur-md fixed w-full top-0 left-0 z-50 shadow-lg border-b border-gray-800">
       <div className="max-w-6xl mx-auto px-5 py-3 flex justify-between items-center">
         {/* Logo */}
-        <Link
-          to="/"
-          onClick={closeMenu}
-          className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-indigo-400 hover:text-indigo-300 transition-colors duration-200"
-        >
-          <Film size={24} className="text-indigo-400" />
-          <span>MovieSearch</span>
+        <Link to="/" className="text-2xl font-bold text-indigo-400">
+          Movie<span className="text-white">Vault</span>
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Desktop Links */}
         <div className="hidden sm:flex items-center gap-6">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `flex items-center gap-1.5 text-sm sm:text-base transition-all duration-200 ${
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "text-gray-300 hover:text-white"
-              }`
-            }
-          >
-            <Home size={18} /> <span>Movies</span>
-          </NavLink>
+          <Link to="/" className="text-gray-300 hover:text-indigo-400 transition font-medium">
+            Home
+          </Link>
+          <Link to="/movies" className="text-gray-300 hover:text-indigo-400 transition font-medium">
+            Movies
+          </Link>
+          <Link to="/tvshows" className="text-gray-300 hover:text-indigo-400 transition font-medium">
+            TV Shows
+          </Link>
 
-          <NavLink
-            to="/tv-shows"
-            className={({ isActive }) =>
-              `flex items-center gap-1.5 text-sm sm:text-base transition-all duration-200 ${
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "text-gray-300 hover:text-white"
-              }`
-            }
-          >
-            <Film size={18} /> <span>TV Shows</span>
-          </NavLink>
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setDropdownOpen((prev) => !prev)}
+                className="flex items-center gap-2 focus:outline-none group"
+              >
+                <img
+                  src={user.avatar}
+                  alt="User Avatar"
+                  className="w-9 h-9 rounded-full border border-gray-700 group-hover:border-indigo-400 transition"
+                />
+                <span className="hidden sm:inline-block text-sm text-gray-300 font-medium group-hover:text-white">
+                  {user.name}
+                </span>
+              </button>
 
-          <NavLink
-            to="/favorites"
-            className={({ isActive }) =>
-              `flex items-center gap-1.5 text-sm sm:text-base transition-all duration-200 ${
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "text-gray-300 hover:text-white"
-              }`
-            }
-          >
-            <Heart size={18} /> <span>Favorites</span>
-          </NavLink>
-          <NavLink
-            to="/watch-later"
-            className={({ isActive }) =>
-              `flex items-center gap-1.5 text-sm sm:text-base transition-all duration-200 ${
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "text-gray-300 hover:text-white"
-              }`
-            }
-          >
-            <Film size={18} /> <span>Watch Later</span>
-          </NavLink>
+              <AnimatePresence>
+                {dropdownOpen && (
+                  <Motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-44 bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden z-50"
+                  >
+                    <div className="py-2 text-sm text-gray-300">
+                      <Link
+                        to="/profile"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 hover:bg-gray-700 transition"
+                      >
+                        <User size={16} /> Profile
+                      </Link>
+                      <Link
+                        to="/settings"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 hover:bg-gray-700 transition"
+                      >
+                        <Settings size={16} /> Settings
+                      </Link>
+                      <Link
+                        to="/library"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 hover:bg-gray-700 transition"
+                      >
+                        📚 Library
+                      </Link>
+                      <hr className="border-gray-700 my-1" />
+                      <button
+                        onClick={() => {
+                          logout();
+                          setDropdownOpen(false);
+                        }}
+                        className="flex items-center gap-2 w-full text-left px-4 py-2 text-red-400 hover:bg-gray-700 hover:text-red-300 transition"
+                      >
+                        <LogOut size={16} /> Logout
+                      </button>
+                    </div>
+                  </Motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <Link to="/login" className="text-gray-300 hover:text-indigo-400 transition font-medium">
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-md text-sm font-medium transition"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
         <button
-          onClick={toggleMenu}
-          className="sm:hidden text-gray-300 hover:text-white transition-colors duration-200"
+          className="sm:hidden text-gray-300"
+          onClick={() => setIsMenuOpen((prev) => !prev)}
         >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Animated Mobile Dropdown */}
+      {/* ✅ Mobile Dropdown Menu */}
       <AnimatePresence>
-        {isOpen && (
+        {isMenuOpen && (
           <Motion.div
-            key="mobile-menu"
-            ref={menuRef}
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="sm:hidden bg-gray-900 border-t border-gray-800 overflow-hidden"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="sm:hidden bg-gray-900 border-t border-gray-800"
           >
-            <div className="px-5 pb-4 space-y-3 pt-2">
-              <NavLink
+            <div className="px-5 py-4 flex flex-col gap-3 text-gray-300">
+              <Link
                 to="/"
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `flex items-center gap-2 text-gray-300 hover:text-indigo-400 transition-all ${
-                    isActive ? "text-indigo-400 font-semibold" : ""
-                  }`
-                }
+                onClick={() => setIsMenuOpen(false)}
+                className="hover:text-indigo-400 transition"
               >
-                <Home size={18} /> <span>Movies</span>
-              </NavLink>
+                Home
+              </Link>
+              <Link
+                to="/movies"
+                onClick={() => setIsMenuOpen(false)}
+                className="hover:text-indigo-400 transition"
+              >
+                Movies
+              </Link>
+              <Link
+                to="/tvShows"
+                onClick={() => setIsMenuOpen(false)}
+                className="hover:text-indigo-400 transition"
+              >
+                TV Shows
+              </Link>
 
-              <NavLink
-                to="/tv-shows"
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `flex items-center gap-2 text-gray-300 hover:text-indigo-400 transition-all ${
-                    isActive ? "text-indigo-400 font-semibold" : ""
-                  }`
-                }
-              >
-                <Film size={18} /> <span>TV Shows</span>
-              </NavLink>
-
-              <NavLink
-                to="/favorites"
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `flex items-center gap-2 text-gray-300 hover:text-indigo-400 transition-all ${
-                    isActive ? "text-indigo-400 font-semibold" : ""
-                  }`
-                }
-              >
-                <Heart size={18} /> <span>Favorites</span>
-              </NavLink>
+              {user ? (
+                <>
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="hover:text-indigo-400 transition"
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="text-left text-red-400 hover:text-red-300 transition"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="hover:text-indigo-400 transition"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="hover:text-indigo-400 transition"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </Motion.div>
         )}

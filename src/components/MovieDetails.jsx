@@ -9,15 +9,16 @@ export default function MovieDetails() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [trailerKey, setTrailerKey] = useState(null);
-  const [userRating, setUserRating] = useState(0);
-  const [hover, setHover] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const { addToWatchLater, watchLater, addToFavorites, favorites } =
-    useContext(MovieContext);
-
-  const isInWatchLater = watchLater.some((m) => m.id === movie?.id);
-  const isFavorite = favorites.some((m) => m.id === movie?.id);
+  const {
+    addToWatchLater,
+    removeFromWatchLater,
+    isInWatchLater,
+    addToFavorites,
+    removeFromFavorites,
+    isFavorite,
+  } = useContext(MovieContext);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -26,34 +27,33 @@ export default function MovieDetails() {
       try {
         setLoading(true);
 
-        // Try fetching movie details
-        let detailsRes = await fetch(
+        // Try fetching as movie
+        let res = await fetch(
           `https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=en-US`
         );
 
-        // If movie not found, try TV show instead
-        if (!detailsRes.ok) {
-          console.warn(`Movie ID ${id} not found. Trying TV endpoint...`);
-          detailsRes = await fetch(
+        // If not found, try TV show endpoint
+        if (!res.ok) {
+          console.warn(`Movie ID ${id} not found. Trying TV...`);
+          res = await fetch(
             `https://api.themoviedb.org/3/tv/${id}?api_key=${API_KEY}&language=en-US`
           );
         }
 
-        if (!detailsRes.ok) {
-          throw new Error(`No data found for ID ${id}`);
-        }
+        if (!res.ok) throw new Error(`No data found for ID ${id}`);
 
-        const detailsData = await detailsRes.json();
-        setMovie(detailsData);
+        const data = await res.json();
+        setMovie(data);
 
-        // Fetch trailer (only if movie/TV exists)
+        // Fetch trailer
         const videoRes = await fetch(
-          `https://api.themoviedb.org/3/${detailsData.title ? "movie" : "tv"}/${id}/videos?api_key=${API_KEY}&language=en-US`
+          `https://api.themoviedb.org/3/${
+            data.title ? "movie" : "tv"
+          }/${id}/videos?api_key=${API_KEY}&language=en-US`
         );
-
         if (videoRes.ok) {
           const videoData = await videoRes.json();
-          const trailer = videoData?.results?.find(
+          const trailer = videoData.results?.find(
             (v) => v.type === "Trailer" && v.site === "YouTube"
           );
           if (trailer) setTrailerKey(trailer.key);
@@ -67,16 +67,6 @@ export default function MovieDetails() {
 
     fetchMovie();
   }, [id]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(`movie_rating_${id}`);
-    if (saved) setUserRating(Number(saved));
-  }, [id]);
-
-  const handleRating = (value) => {
-    setUserRating(value);
-    localStorage.setItem(`movie_rating_${id}`, value);
-  };
 
   if (loading) {
     return (
@@ -102,7 +92,7 @@ export default function MovieDetails() {
 
   return (
     <div className="relative">
-      {/* ✅ Blurred background */}
+      {/* ✅ Background Blur */}
       <div
         className="absolute inset-0 -z-10 bg-cover bg-center opacity-25 blur-2xl"
         style={{
@@ -126,61 +116,31 @@ export default function MovieDetails() {
             className="rounded-lg w-full md:w-1/3 shadow-2xl"
           />
 
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-1">
+          <div className="flex-1 flex flex-col justify-center">
+            <h1 className="text-3xl font-bold mb-2 text-center md:text-left">
               {movie.title || movie.name}
             </h1>
-            <p className="text-gray-400 mb-4">
+            <p className="text-gray-400 mb-4 text-center md:text-left">
               {movie.release_date || movie.first_air_date || "Unknown"}
             </p>
 
-            {/* ✅ TMDB Rating */}
-            <div className="flex items-center gap-2 mb-4">
-              <Star fill="gold" className="text-yellow-400" size={20} />
-              <span className="text-lg font-semibold">{imdbRating}</span>
-              <span className="text-gray-400 text-sm">/ 10</span>
-              <span className="text-gray-500 text-xs ml-2">
+            {/* ✅ Centered TMDB Rating */}
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-6">
+              <Star fill="gold" className="text-yellow-400" size={24} />
+              <span className="text-2xl font-bold">{imdbRating}</span>
+              <span className="text-gray-400 text-base">/ 10</span>
+              <span className="text-gray-500 text-sm ml-2">
                 ({movie.vote_count?.toLocaleString() || 0} votes)
               </span>
             </div>
 
-            {/* ✅ User Rating */}
-            <div className="mt-4">
-              <p className="text-sm text-gray-400 mb-2">Your Rating:</p>
-              <div className="flex gap-1">
-                {[...Array(10)].map((_, i) => {
-                  const value = i + 1;
-                  const active = (hover || userRating) >= value;
-                  return (
-                    <Star
-                      key={value}
-                      size={22}
-                      className={`cursor-pointer transition-transform duration-150 hover:scale-125 ${
-                        active ? "text-yellow-400" : "text-gray-600"
-                      }`}
-                      onClick={() => handleRating(value)}
-                      onMouseEnter={() => setHover(value)}
-                      onMouseLeave={() => setHover(null)}
-                      fill={active ? "yellow" : "none"}
-                    />
-                  );
-                })}
-              </div>
-              {userRating > 0 && (
-                <p className="text-sm text-gray-300 mt-1">
-                  You rated this{" "}
-                  <span className="font-semibold">{userRating}/10</span>
-                </p>
-              )}
-            </div>
-
             {/* ✅ Overview */}
-            <p className="leading-relaxed mt-6">
+            <p className="leading-relaxed text-gray-300 text-center md:text-left">
               {movie.overview || "No overview available."}
             </p>
 
-            {/* ✅ Extra info */}
-            <div className="mt-6 text-sm text-gray-400 space-y-1">
+            {/* ✅ Extra Info */}
+            <div className="mt-6 text-sm text-gray-400 space-y-1 text-center md:text-left">
               <p>
                 <strong className="text-gray-200">Runtime:</strong>{" "}
                 {movie.runtime
@@ -203,30 +163,42 @@ export default function MovieDetails() {
               </p>
             </div>
 
-            {/* ✅ Watch Later + Favorites */}
-            <div className="mt-6 flex gap-3">
+            {/* ✅ Actions */}
+            <div className="mt-6 flex justify-center md:justify-start flex-wrap gap-3">
+              {/* Favorites */}
               <button
-                onClick={() => (isFavorite ? null : addToFavorites(movie))}
-                disabled={isFavorite}
-                className={`px-4 py-2 rounded text-white font-medium ${
-                  isFavorite
-                    ? "bg-gray-600 cursor-not-allowed"
+                onClick={() =>
+                  isFavorite(movie.id)
+                    ? removeFromFavorites(movie.id)
+                    : addToFavorites(movie)
+                }
+                className={`px-5 py-2 rounded text-white font-medium transition ${
+                  isFavorite(movie.id)
+                    ? "bg-red-600 hover:bg-red-700"
                     : "bg-indigo-600 hover:bg-indigo-700"
                 }`}
               >
-                {isFavorite ? "Added to Favorites" : "Add to Favorites"}
+                {isFavorite(movie.id)
+                  ? "Remove from Favorites"
+                  : "Add to Favorites"}
               </button>
 
+              {/* Watch Later */}
               <button
-                onClick={() => (isInWatchLater ? null : addToWatchLater(movie))}
-                disabled={isInWatchLater}
-                className={`px-4 py-2 rounded text-white font-medium ${
-                  isInWatchLater
-                    ? "bg-gray-600 cursor-not-allowed"
+                onClick={() =>
+                  isInWatchLater(movie.id)
+                    ? removeFromWatchLater(movie.id)
+                    : addToWatchLater(movie)
+                }
+                className={`px-5 py-2 rounded text-white font-medium transition ${
+                  isInWatchLater(movie.id)
+                    ? "bg-yellow-600 hover:bg-yellow-700"
                     : "bg-green-600 hover:bg-green-700"
                 }`}
               >
-                {isInWatchLater ? "In Watch Later" : "Add to Watch Later"}
+                {isInWatchLater(movie.id)
+                  ? "Remove from Watch Later"
+                  : "Add to Watch Later"}
               </button>
             </div>
           </div>

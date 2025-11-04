@@ -29,7 +29,7 @@ export const MovieProvider = ({ children }) => {
 
   // --- FAVORITES ---
   const addToFavorites = (movie) => {
-    if (!favorites.find((m) => m.imdbID === movie.imdbID)) {
+    if (!favorites.find((m) => m.tmdbID === movie.tmdbID)) {
       setFavorites((prev) => [...prev, movie]);
       triggerToast("Added to favorites!");
     } else {
@@ -38,15 +38,15 @@ export const MovieProvider = ({ children }) => {
   };
 
   const removeFromFavorites = (imdbID) => {
-    setFavorites((prev) => prev.filter((m) => m.imdbID !== imdbID));
+    setFavorites((prev) => prev.filter((m) => m.tmdbID !== imdbID));
     triggerToast("Removed from favorites.");
   };
 
-  const isFavorite = (imdbID) => favorites.some((m) => m.imdbID === imdbID);
+  const isFavorite = (imdbID) => favorites.some((m) => m.tmdbID === imdbID);
 
   // --- WATCH LATER ---
   const addToWatchLater = (movie) => {
-    if (!watchLater.find((m) => m.imdbID === movie.imdbID)) {
+    if (!watchLater.find((m) => m.imdbID === movie.tmdbID)) {
       setWatchLater((prev) => [...prev, movie]);
       triggerToast("Added to Watch Later!");
     } else {

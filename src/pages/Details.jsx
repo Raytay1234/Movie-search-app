@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useMovies } from "../hooks/useMovies";
 
 // ✅ Use your provided key directly (since you already have it)
-const API_KEY = "8495c037";
+const API_KEY = "fa6f055c70ebe532bb30eceda30c7ade";
 const BASE_URL = "https://www.omdbapi.com/"; // use HTTPS always
 const PLACEHOLDER = "https://via.placeholder.com/500x750?text=No+Poster";
 
@@ -78,7 +78,7 @@ export default function Details() {
               fav
                 ? removeFromFavorites(movie.imdbID)
                 : addToFavorites({
-                    imdbID: movie.imdbID,
+                    tmdbID: movie.tmdbID,
                     Title: movie.Title,
                     Year: movie.Year,
                     Poster: movie.Poster,
