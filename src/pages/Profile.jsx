@@ -1,21 +1,26 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Star, Clock, Save, Image } from "lucide-react";
 
 export default function Profile() {
   const { user, updateProfile, logout } = useAuth();
+  const { darkMode } = useTheme();
   const navigate = useNavigate();
 
   const [name, setName] = useState(user?.name || "");
   const [avatar, setAvatar] = useState(user?.avatar || "https://i.pravatar.cc/150?img=8");
-  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white px-6">
+      <div
+        className={`flex flex-col items-center justify-center min-h-screen ${
+          darkMode ? "bg-gray-950 text-white" : "bg-gray-100 text-gray-900"
+        } px-6`}
+      >
         <h2 className="text-3xl font-semibold mb-4">You’re not logged in.</h2>
         <button
           onClick={() => navigate("/login")}
@@ -44,35 +49,25 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-linear-to-b from-gray-950 to-gray-900 text-gray-100 px-4">
-      <div className="max-w-lg w-full bg-gray-900/90 backdrop-blur-md border border-gray-800 shadow-2xl rounded-2xl p-8 transition-all">
-        {/* Header */}
+    <div
+      className={`flex items-center justify-center min-h-screen ${
+        darkMode ? "bg-gray-950 text-white" : "bg-gray-100 text-gray-900"
+      } px-4`}
+    >
+      <div className="max-w-lg w-full dark:bg-gray-900/90 bg-white border border-gray-800 rounded-2xl shadow-2xl p-8 transition-all">
         <h2 className="text-3xl font-bold text-center mb-8 text-indigo-400 tracking-tight">
           Profile Settings
         </h2>
 
-        {/* Avatar Section */}
         <div className="flex flex-col items-center mb-6">
-          <div className="relative">
-            <img
-              src={avatar}
-              alt="Profile Avatar"
-              className="w-28 h-28 rounded-full border-4 border-indigo-500 shadow-lg object-cover"
-            />
-            <label className="absolute bottom-0 right-0 bg-indigo-600 hover:bg-indigo-700 p-2 rounded-full cursor-pointer transition">
-              <Image size={16} />
-              <input
-                type="text"
-                onChange={(e) => setAvatar(e.target.value)}
-                placeholder="Paste image URL"
-                className="hidden"
-              />
-            </label>
-          </div>
+          <img
+            src={avatar}
+            alt="Profile Avatar"
+            className="w-28 h-28 rounded-full border-4 border-indigo-500 shadow-lg object-cover"
+          />
           <p className="text-sm text-gray-400 mt-3">Change your avatar URL below</p>
         </div>
 
-        {/* Profile Form */}
         <form onSubmit={handleSave} className="space-y-5">
           <div>
             <label className="text-sm text-gray-400 font-medium">Full Name</label>
@@ -96,23 +91,6 @@ export default function Profile() {
             />
           </div>
 
-          <div>
-            <label className="text-sm text-gray-400 font-medium">Change Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter new password"
-              className="w-full mt-1 px-4 py-2.5 bg-gray-800 rounded-lg border border-gray-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition"
-            />
-          </div>
-
-          {message && (
-            <p className="text-green-400 text-center text-sm mt-2 animate-pulse">
-              {message}
-            </p>
-          )}
-
           <button
             type="submit"
             disabled={isSaving}
@@ -123,9 +101,14 @@ export default function Profile() {
             <Save size={18} />
             {isSaving ? "Saving..." : "Save Changes"}
           </button>
+
+          {message && (
+            <p className="text-green-400 text-center text-sm mt-2 animate-pulse">
+              {message}
+            </p>
+          )}
         </form>
 
-        {/* Quick Links */}
         <div className="mt-8 border-t border-gray-800 pt-5 flex flex-wrap justify-between text-sm">
           <button
             onClick={() => navigate("/favorites")}

@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -15,11 +14,16 @@ import Favorites from "./pages/Favorites";
 import Login from "./pages/LogIn";
 import Signup from "./pages/SignUp";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { MovieProvider } from "./context/MovieContext";
+import { useTheme } from "./context/ThemeContext";
 
 export default function App() {
+  const { darkMode } = useTheme();
+
   return (
-    <MovieProvider>
+    <div
+      className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-950 text-white" : "bg-gray-100 text-gray-900"
+        }`}
+    >
       <Navbar />
       <div className="pt-16">
         <Routes>
@@ -89,6 +93,6 @@ export default function App() {
           />
         </Routes>
       </div>
-    </MovieProvider>
+    </div>
   );
 }

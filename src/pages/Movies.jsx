@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import MovieCard from "../components/MovieCard";
 import ScrollTop from "../components/ScrollTop";
-
 const API_KEY = "fa6f055c70ebe532bb30eceda30c7ade";
 
 export default function Movies() {
